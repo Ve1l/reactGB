@@ -7,8 +7,8 @@ export class MessageProvider extends React.Component {
       { title: 'room2', value: '' },
     ],
     messages: {
-      room1: [{ author: 'User', message: 'Привет !' }],
-      room2: [{ author: 'User', message: 'Привет room2!' }],
+      room1: [{ author: 'User', message: 'Hi', date: new Date() }],
+      room2: [{ author: 'User', message: 'Hi room 2', date: new Date() }],
     },
   }
 
@@ -21,7 +21,7 @@ export class MessageProvider extends React.Component {
     } = event
 
     this.setState({
-      conversations: this.conversations.map((conversation) => {
+      conversations: this.state.conversations.map((conversation) => {
         if (params.roomId === conversation.title) {
           return { ...conversation, value }
         }
@@ -36,18 +36,48 @@ export class MessageProvider extends React.Component {
       return
     }
 
-    const { messages } = this.state
+    const { messages, conversations } = this.state
     const { match } = this.props
     const { params } = match
 
-    const newMessage = { author, message }
+    const newMessage = { author, message, date: new Date() }
 
     this.setState({
       messages: {
         ...messages,
         [params.roomId]: [...(messages[params.roomId] || []), newMessage],
       },
+      conversations: conversations.map((conversation) =>
+        conversation.title === params.roomId
+          ? {
+              ...conversation,
+              value: '',
+            }
+          : conversation
+      ),
     })
+  }
+
+  componentDidUpdate(_, prevState) {
+    const {
+      match: { params },
+    } = this.props
+    const { messages } = this.state
+
+    if (!params.roomId) {
+      return
+    }
+
+    const currentMessages = messages[params.roomId]
+    const prevMessages = prevState.messages[params.roomId]
+
+    const lastMessage = currentMessages[currentMessages.length - 1]
+
+    if (lastMessage?.author !== 'Bot' && currentMessages !== prevMessages) {
+      setTimeout(() => {
+        this.sendMessage({ author: 'Bot', message: 'How are you' })
+      }, 500)
+    }
   }
 
   render() {
@@ -58,6 +88,7 @@ export class MessageProvider extends React.Component {
 
     const state = {
       conversations,
+      allMessages: messages,
       messages: messages[params.roomId] || [],
       value:
         conversations.find(

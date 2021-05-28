@@ -1,7 +1,10 @@
-import { Input, InputAdornment, withStyles } from '@material-ui/core'
+import { InputAdornment, Input, withStyles } from '@material-ui/core'
 import { Send } from '@material-ui/icons'
-import React from 'react'
+import classnames from 'classnames'
+import React, { Component, createRef } from 'react'
 import { Message } from './message'
+import styles from './message-field.module.css'
+import { MessagesNotFound } from './messages-not-found'
 
 const StyledInput = withStyles(() => ({
   root: {
@@ -13,73 +16,68 @@ const StyledInput = withStyles(() => ({
   },
 }))(Input)
 
-export class MessageField extends React.Component {
-  state = {
-    messages: [{ author: 'User', value: 'Hello' }],
-    value: '',
-  }
+export class MessageField extends Component {
+  ref = createRef()
 
-  componentDidUpdate(_, state) {
-    const { messages } = this.state
-
-    const lastMessage = messages[messages.length - 1]
-
-    if (lastMessage.author == 'User' && state.messages != messages) {
-      setTimeout(() => {
-        this.setState({
-          messages: [...messages, { author: 'Bot', value: "No, I'm Bot" }],
-        })
-      }, 1000)
-    }
-  }
-
-  sendMessage = ({ author, value }) => {
-    const { messages } = this.state
-
-    this.setState({
-      messages: [...messages, { author, value }],
-      value: '',
-    })
-  }
-
-  handleChangeInput = ({ target }) => {
-    this.setState({
-      value: target.value,
-    })
+  handleChangeInput = (e) => {
+    this.props.handleChangeValue(e)
   }
 
   handlePressInput = ({ code }) => {
-    const { value } = this.state
-    if (code == 'Enter') {
-      this.sendMessage({ author: 'User', value })
+    if (code === 'Enter') {
+      this.handleSendMessage()
     }
   }
 
+  handleSendMessage = () => {
+    const { sendMessage, value } = this.props
+
+    sendMessage({ author: 'User', message: value })
+  }
+
+  handleScrollBottom = () => {
+    if (this.ref.current) {
+      this.ref.current.scrollTo(0, this.ref.current.scrollHeight)
+    }
+  }
+
+  componentDidUpdate() {
+    this.handleScrollBottom()
+  }
+
   render() {
-    const { messages, value } = this.state
+    const { messages, value } = this.props
 
     return (
-      <div>
-        {messages.map((message, index) => (
-          <Message message={message} key={index} />
-        ))}
+      <>
+        <div ref={this.ref}>
+          {!messages.length ? (
+            <MessagesNotFound />
+          ) : (
+            messages.map((message, index) => (
+              <Message message={message} key={index} />
+            ))
+          )}
+        </div>
+
         <StyledInput
+          fullWidth={true}
+          placeholder="Write a message..."
+          value={value}
           onChange={this.handleChangeInput}
           onKeyPress={this.handlePressInput}
-          value={value}
-          placeholder="Enter message"
-          fullWidth={true}
           endAdornment={
             <InputAdornment position="end">
               {value && (
                 <Send
-                  onClick={() => this.sendMessage({ author: 'User', value })}
+                  className={classnames(styles.icon)}
+                  onClick={this.handleSendMessage}
                 />
               )}
             </InputAdornment>
           }
         />
-      </div>
+      </>
     )
   }
 }

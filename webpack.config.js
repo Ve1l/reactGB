@@ -4,7 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
 
-const isDevelopment = process.env.NODE_ENV == 'development'
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 const getFileName = (ext = '[ext]', name = '[name]') => {
   return isDevelopment ? `${name}.${ext}` : `${name}.[contenthash].${ext}`
@@ -18,7 +18,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'main.js',
+    publicPath: '/',
   },
   optimization: isDevelopment
     ? {}
@@ -44,7 +44,7 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/, /\.module\.css$/],
         use: [
           isDevelopment
             ? 'style-loader'
@@ -64,6 +64,28 @@ module.exports = {
         ],
       },
       {
+        test: /\.module\.css$/,
+        exclude: /node_modules/,
+        use: [
+          isDevelopment
+            ? 'style-loader'
+            : {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  publicPath: path.resolve(__dirname, 'dist/css'),
+                },
+              },
+
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: isDevelopment,
+              modules: true,
+            },
+          },
+        ],
+      },
+      {
         test: /\.js(x?)$/,
         exclude: /node_modules/,
         use: 'babel-loader',
@@ -76,7 +98,7 @@ module.exports = {
     alias: {
       '@app': path.resolve(__dirname, 'src/'),
       '@store': path.resolve(__dirname, 'src/store/'),
-      '@components': path.resolve(__dirname, 'src/components'),
+      '@components': path.resolve(__dirname, 'src/components/'),
       '@utils': path.resolve(__dirname, 'src/utils/'),
     },
   },

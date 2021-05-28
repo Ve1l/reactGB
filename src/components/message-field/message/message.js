@@ -1,23 +1,33 @@
+import classNames from 'classnames'
+import { format } from 'date-fns'
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { Component } from 'react'
+import styles from './message.module.css'
 
-export class Message extends React.Component {
+export class Message extends Component {
   static propTypes = {
     message: PropTypes.shape({
-      author: PropTypes.string,
-      value: PropTypes.string,
+      author: PropTypes.string.isRequired,
+      message: PropTypes.string.isRequired,
     }),
   }
 
   render() {
-    const { message } = this.props
-    const { author, value } = message
+    const {
+      message: { message, author, date },
+    } = this.props
 
     return (
-      <div>
-        <h2>{value}</h2>
-        <h2>{author}</h2>
-        <hr />
+      <div className={styles.wrapper}>
+        <div
+          className={classNames(styles.message, {
+            [styles.currentMessage]: author === 'User',
+          })}
+        >
+          <p>{author}</p>
+          <h3>{message}</h3>
+          <p>{format(date, 'HH:mm:ss')}</p>
+        </div>
       </div>
     )
   }

@@ -19,7 +19,7 @@
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
     "cross-env": "^7.0.3",
-    "css-loader": "^5.2.4",
+    "css-loader": "^5.2.6",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.2",
@@ -39,6 +39,9 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.11.4",
-    "@material-ui/icons": "^4.11.2"
+    "@material-ui/icons": "^4.11.2",
+    "classnames": "^2.3.1",
+    "date-fns": "^2.22.0",
+    "prop-types": "^15.7.2"
   }
 }
