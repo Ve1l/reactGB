@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import {
-  Layout,
-  Header,
   ChatList,
-  MessageField,
+  Header,
+  Layout,
+  MessageList,
   MessagesNotFound,
-  MessageProvider,
 } from '../components'
 
 export class Chat extends Component {
@@ -28,31 +27,24 @@ export class Chat extends Component {
   render() {
     return (
       <Switch>
-        <Route path={['/chat/:roomId', '/chat']}>
+        <Route path={['/chat/:id', '/chat']}>
           {(params) => (
-            <MessageProvider {...params}>
-              {([state, actions]) => {
-                return (
-                  <Layout
-                    header={<Header />}
-                    chats={<ChatList {...params} {...state} />}
-                  >
-                    <Route path="/chat/:roomId">
-                      <MessageField {...state} {...actions} />
-                    </Route>
-                    <Route exact={true} path="/chat">
-                      <MessagesNotFound />
-                    </Route>
-                  </Layout>
-                )
-              }}
-            </MessageProvider>
+            <>
+              <Layout header={<Header />} chats={<ChatList {...params} />}>
+                <Route path="/chat/:id">
+                  <MessageList {...params} />
+                </Route>
+                <Route exact={true} path="/chat">
+                  <MessagesNotFound />
+                </Route>
+              </Layout>
+            </>
           )}
         </Route>
         <Route
           exact={true}
           path="*"
-          component={() => <h1>Chat not found</h1>}
+          component={() => <h1>Chat not found (404)</h1>}
         />
       </Switch>
     )
