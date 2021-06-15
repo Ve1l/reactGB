@@ -2,19 +2,13 @@ import { getGistsFailure, getGistsRequest, getGistsSuccess } from './actions'
 
 export const API_URL_PUBLIC = 'https://api.github.com/gists/public'
 
-export const getAllGists = () => async (dispatch) => {
+export const getAllGists = () => async (dispatch, _, request) => {
   dispatch(getGistsRequest())
 
   try {
-    const res = await fetch(API_URL_PUBLIC)
+    const { data } = await request.get(API_URL_PUBLIC)
 
-    if (!res.ok) {
-      throw new Error(`Request failed with status ${res.status}`)
-    }
-
-    const result = await res.json()
-
-    dispatch(getGistsSuccess(result))
+    dispatch(getGistsSuccess(data))
   } catch (err) {
     dispatch(getGistsFailure(err.message))
   }
